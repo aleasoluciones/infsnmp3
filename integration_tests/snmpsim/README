@@ -1,0 +1,3 @@
+${VIRTUAL_ENV}/bin/python ${VIRTUAL_ENV}/bin/snmpsimd.py --v2c-arch --agent-port=1161 --device-dir=simulated_data/ --validate-device-data --force-index-rebuild
+
+snmpwalk -v2c -c cm-0015cf2093d7 127.0.0.1:1161 1.3.6.1.2.1.10.127.1.1
