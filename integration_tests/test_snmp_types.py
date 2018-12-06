@@ -2,9 +2,10 @@
 
 import unittest
 import os
-from hamcrest import *
-
+import binascii
 import datetime
+
+from hamcrest import *
 import pysnmp
 from pysnmp.proto import rfc1902
 from pyasn1.type import univ
@@ -30,8 +31,8 @@ class PySnmpValuesTest(unittest.TestCase):
         assert_that(types.PySnmpValue(snmp_value).type_text(), is_('Counter64'))
 
     def test_octect_string(self):
-        snmp_value = rfc1902.OctetString('HG8110')
-        assert_that(types.PySnmpValue(snmp_value).value(), is_('HG8110'))
+        snmp_value = rfc1902.OctetString(b'HG8110')
+        assert_that(types.PySnmpValue(snmp_value).value(), is_(b'HG8110'))
         assert_that(types.PySnmpValue(snmp_value).type_text(), is_('OctetString'))
 
     def test_ipaddress_string(self):
@@ -43,7 +44,7 @@ class PySnmpValuesTest(unittest.TestCase):
     def test_timestamp(self):
         # '07dd011c0c292c002b0100' -> '2013-01-28 12:41:44' -> timstamp 1359373304.0
         os.environ['TZ'] = 'UTC'
-        snmp_value = rfc1902.OctetString('07dd011c0c292c002b0100'.decode('hex'))
+        snmp_value = rfc1902.OctetString(binascii.unhexlify(b'07dd011c0c292c002b0100'))
 
         assert_that(types.PySnmpValue(snmp_value).to_timestamp(), is_(1359376904.0))
         assert_that(types.PySnmpValue(snmp_value).type_text(), is_('OctetString'))
@@ -58,9 +59,8 @@ class PySnmpValuesTest(unittest.TestCase):
         assert_that(types.PySnmpValue(no_converted_value).value(), none())
 
     def test_convert_octect_with_hexadecimal_to_string_with_hexadecimal(self):
-        snmp_value = rfc1902.OctetString('HWTC\xe5\x8f"\t')
-        assert_that(types.PySnmpValue(
-            snmp_value).to_hex_string(), is_('48575443e58f2209'))
+        snmp_value = rfc1902.OctetString(b'HWTC\xe5\x8f"\t')
+        assert_that(types.PySnmpValue(snmp_value).to_hex_string(), is_('48575443e58f2209'))
 
     def test_convert_object_identifier_string_oid(self):
         snmp_value = univ.ObjectIdentifier('1.1')
@@ -93,10 +93,9 @@ class PySnmpTypesTest(unittest.TestCase):
         assert_that(snmp_value, instance_of(pysnmp.proto.rfc1902.IpAddress))
 
     def test_octect_string_from_hex_string(self):
-        snmp_value = self.types.octect_string_from_hex_string(
-            '48575443e58f2209')
+        snmp_value = self.types.octect_string_from_hex_string(b'48575443e58f2209')
         assert_that(snmp_value, instance_of(pysnmp.proto.rfc1902.OctetString))
-        assert_that(snmp_value._value, is_('HWTC\xe5\x8f"\t'))
+        assert_that(snmp_value._value, is_(b'HWTC\xe5\x8f"\t'))
 
     def test_counter_64(self):
         snmp_value = self.types.counter64(42)

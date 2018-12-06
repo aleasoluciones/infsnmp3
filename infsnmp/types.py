@@ -2,8 +2,11 @@
 
 import datetime
 import struct
+import binascii
+
 from pysnmp.proto import rfc1902, rfc1905
 from pyasn1.type import univ
+
 from infcommon import clock
 
 
@@ -43,7 +46,7 @@ class PySnmpValue(object):
         return self._CONVERSIONS.get(self.snmp_value.__class__, lambda self, value: None)(self, self.snmp_value._value)
 
     def to_hex_string(self):
-        return self.value().encode('hex')
+        return self.value().hex()
 
     def to_timestamp(self):
         return clock.Clock.timestamp(datetime.datetime(*struct.unpack('>hbbbbbbcbb', self.value())[:7]))
@@ -82,7 +85,7 @@ class PySnmpTypes(object):
         return rfc1902.IpAddress(value)
 
     def octect_string_from_hex_string(self, value):
-        return rfc1902.OctetString(value.decode('hex'))
+        return rfc1902.OctetString(binascii.unhexlify(value))
 
     def counter64(self, value):
         return rfc1902.Counter64(value)
