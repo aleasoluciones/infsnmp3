@@ -1,0 +1,18 @@
+sudo: required
+
+services:
+- docker
+
+language: python
+
+python:
+- '2.7'
+
+before_install:
+- sudo apt-get -y update || true
+
+install:
+- dev/setup_venv.sh
+
+script:
+- ./integration_tests.sh
