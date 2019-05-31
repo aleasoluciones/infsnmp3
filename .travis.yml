@@ -16,3 +16,7 @@ install:
 
 script:
 - dev/integration_tests.sh
+
+notifications:
+  email:
+    - bifer@alea-soluciones.com
