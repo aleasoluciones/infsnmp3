@@ -1,4 +1,4 @@
-pyasn1==0.1.2
+pyasn1==0.1.9
 pysnmp==4.2.4
 pysnmp-mibs==0.1.4
 -e git+https://github.com/aleasoluciones/infcommon3.git#egg=infcommon
