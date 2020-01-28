@@ -13,6 +13,7 @@ from pyasn1.type import univ
 from infcommon import clock
 from infsnmp import types
 
+
 class PySnmpValuesTest(unittest.TestCase):
 
     def test_integer(self):
@@ -65,6 +66,10 @@ class PySnmpValuesTest(unittest.TestCase):
     def test_convert_object_identifier_string_oid(self):
         snmp_value = univ.ObjectIdentifier('1.1')
         assert_that(types.PySnmpValue(snmp_value).value(), is_('1.1'))
+
+    def test_sanetize_value(self):
+        snmp_value = rfc1902.OctetString(b'\x00HG8110')
+        assert_that(types.PySnmpValue(snmp_value).sanetized_value(), is_(b'HG8110'))
 
 
 class PySnmpTypesTest(unittest.TestCase):

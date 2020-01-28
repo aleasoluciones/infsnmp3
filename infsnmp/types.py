@@ -32,7 +32,6 @@ class PySnmpValue(object):
             return False
         return True
 
-
     def is_valid(self):
         return not isinstance(self.snmp_value, rfc1905.EndOfMibView)
 
@@ -52,7 +51,7 @@ class PySnmpValue(object):
         return clock.Clock.timestamp(datetime.datetime(*struct.unpack('>hbbbbbbcbb', self.value())[:7]))
 
     def sanetized_value(self):
-        return self.value().replace(chr(0), '')
+        return self.value().replace(chr(0).encode('utf-8'), b'')
 
     def __eq__(self, other):
         return (isinstance(other, self.__class__) and self.snmp_value == other.snmp_value)
@@ -109,7 +108,7 @@ class FakeSnmpValue(object):
         return self.snmp_value
 
     def sanetized_value(self):
-        return str(self.value()).replace(chr(0), '')
+        return self.value().replace(chr(0).encode('utf-8'), b'')
 
     def __repr__(self):
         return "FakeSnmpValue %s" % self.snmp_value
