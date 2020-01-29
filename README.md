@@ -3,29 +3,63 @@
 [![Build status](https://secure.travis-ci.org/aleasoluciones/infsnmp.svg?branch=master)](https://secure.travis-ci.org/aleasoluciones/infsnmp)
 
 
-Wrapper for pysnmp library.
+Wrapper for [PySNMP](http://snmplabs.com/pysnmp/index.html) library.
 
 ## How to setup the development environment
-`dev/setup_venv.sh`
+
+- Create a virtual environment with [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/) using Python 3.7+:
+
+```sh
+mkvirtualenv infsnmp -p $(which python3.7)
+```
+
+- Install the dependencies:
+
+```sh
+dev/setup_venv.sh
+```
 
 ## How to run the tests
-`./integration_tests.sh`
 
-## snmp daemon emulation
-
-Integration tests starts a container with [snmpsim](http://snmplabs.com/snmpsim/) daemon, that has been configured with custom data to simuate some Huawei OLTs behaviour.
-
-starting snmpsim manually without container:
-```
-${VIRTUAL_ENV}/bin/python ${VIRTUAL_ENV}/bin/snmpsimd.py --v2c-arch --agent-port=1161 --device-dir=simulated_data/ --validate-device-data --force-index-rebuild
-
+```sh
+./integration_tests.sh
 ```
 
-Requesting an OID
-```
-snmpwalk -v2c -c cm-0015cf2093d7 127.0.0.1:1161 1.3.6.1.2.1.10.127.1.1
+This will run a container executing the [SNMP Simulator Tool](http://snmplabs.com/snmpsim/) (snmpsim) and the tests against it. It has been loaded with custom data to simulate a Huawei OLTs. The container will be stopped and removed after running the tests.
+
+## Example: request an OID
+
+In the following examples we'll execute a *snmpwalk* using both the command line and the library. We can manually build and run the previous container to make OID petitions.
+
+```sh
+docker build -t snmpsimd .
+docker run -d --name snmpsimd -v /etc/localtime:/etc/localtime:ro -v $(pwd)/integration_tests/snmpsim/simulated_data/:/simulated_data -p 1161:1161/udp snmpsimd
 ```
 
-this should work and could the starting point to understand and play with this module.
+### Using the command line
 
-Visit snmpsim [README](https://github.com/aleasoluciones/infsnmp3/blob/master/integration_tests/snmpsim/README) for further information
+```sh
+snmpwalk -v2c -c cm-0015cf2093d7 127.0.0.1:1161 1.3.6.1.2.1
+```
+
+### Using the library
+
+```python
+from infsnmp import clients as infsnmp_clients
+
+snmp_client = infsnmp_clients.PySnmpClient()
+
+host = '127.0.0.1'
+community = 'cm-0015cf2093d7'
+root_oid = '1.3.6.1.2.1'
+port = '1161'
+
+results = snmp_client.bulk_walk(host=host, port=port, community=community, str_oid=root_oid)
+
+for result in results:
+    # Each result is a tuple of two elements
+    oid = result[0]
+    data = result[1].value()
+    print(f'{oid} --- {data}')
+
+```
