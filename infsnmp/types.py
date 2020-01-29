@@ -108,7 +108,7 @@ class FakeSnmpValue(object):
         return self.snmp_value
 
     def sanetized_value(self):
-        return self.value().replace(chr(0).encode('utf-8'), b'')
+        return str(self.value()).replace(chr(0), '')
 
     def __repr__(self):
         return "FakeSnmpValue %s" % self.snmp_value
