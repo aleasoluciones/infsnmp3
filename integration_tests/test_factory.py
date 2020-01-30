@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
-
 import unittest
-from doublex import *
+from doublex import assert_that, instance_of
 
 from infsnmp import factory
 from infsnmp import clients, types, traps
+
 
 IRRELEVANT_TRAP_HANDLER = 'irrelevant_trap_handler'
 IRRELEVANT_DIRECTORY = 'irrelevant_directory'

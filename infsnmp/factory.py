@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
-
 import glob
-import os.path
-
 import os
+
 from infcommon.factory import Factory
+
 from infsnmp import (
     clients,
     types,
@@ -12,11 +10,15 @@ from infsnmp import (
     traps
 )
 
-snmp_client = lambda: Factory.instance(
-    'snmp_client', lambda: clients.PySnmpClient())
 
-snmp_types = lambda: Factory.instance(
-    'snmp_types', lambda: types.PySnmpTypes())
+def snmp_client():
+    return Factory.instance('snmp_client',
+                            lambda: clients.PySnmpClient())
+
+
+def snmp_types():
+    return Factory.instance('snmp_types',
+                            lambda: types.PySnmpTypes())
 
 
 def get_mibdir():
@@ -34,12 +36,12 @@ def modules_from_dir(directory):
 def oid_converter():
     mibdir = get_mibdir()
     return Factory.instance('oid_converter',
-                            lambda: oid_converter_module.PyOIDConverter(
-                            mibdir,
-                            modules_from_dir(mibdir)))
+                            lambda: oid_converter_module.PyOIDConverter(mibdir,
+                                                                        modules_from_dir(mibdir)))
 
 
 def snmp_trap_dispatcher(trap_handler):
-    return Factory.instance('snmp_trap_dispatcher', lambda:
-            traps.PySnmpTrapDispatcher(trap_handler, address='0.0.0.0',
-                port=162))
+    return Factory.instance('snmp_trap_dispatcher',
+                            lambda: traps.PySnmpTrapDispatcher(trap_handler,
+                                                               address='0.0.0.0',
+                                                               port=162))

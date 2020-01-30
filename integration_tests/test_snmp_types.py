@@ -1,16 +1,12 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 import os
 import binascii
-import datetime
 
-from hamcrest import *
+from hamcrest import assert_that, is_, none, instance_of
 import pysnmp
 from pysnmp.proto import rfc1902
 from pyasn1.type import univ
 
-from infcommon import clock
 from infsnmp import types
 
 

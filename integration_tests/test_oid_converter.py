@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
+import unittest
+from hamcrest import assert_that, is_, has_items
 
 import os.path
-import unittest
-from hamcrest import *
+
 from infsnmp import oid_converter, exceptions
+
 
 PYMIBSDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../pymibs/'))
 

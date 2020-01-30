@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
-
 import logging
-from pysnmp.smi import builder, view, error
-import infcommon
-from infsnmp import exceptions
 
+from pysnmp.smi import builder, view, error
+
+import infcommon
+
+from infsnmp import exceptions
 
 
 class MIBSymbol(infcommon.AttributesComparison):
@@ -26,7 +26,7 @@ class MIBSymbol(infcommon.AttributesComparison):
         return [str(suffix) for suffix in self.node_suffixes]
 
 
-class PyOIDConverter(object):
+class PyOIDConverter:
     DEFAULT_MODULES = ['SNMPv2-MIB']
 
     def __init__(self, directory, modules_to_load):

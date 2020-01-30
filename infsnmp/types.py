@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import datetime
 import struct
 import binascii
@@ -10,7 +8,7 @@ from pyasn1.type import univ
 from infcommon import clock
 
 
-class PySnmpValue(object):
+class PySnmpValue:
     _CONVERSIONS = {
         rfc1902.OctetString: lambda self, value: value,
         rfc1902.IpAddress: lambda self, value: self.snmp_value.prettyOut(value),
@@ -66,7 +64,7 @@ class PySnmpValue(object):
         return self.__str__()
 
 
-class PySnmpTypes(object):
+class PySnmpTypes:
 
     def integer(self, value):
         return rfc1902.Integer(value)
@@ -90,7 +88,7 @@ class PySnmpTypes(object):
         return rfc1902.Counter64(value)
 
 
-class FakeSnmpValue(object):
+class FakeSnmpValue:
 
     def __init__(self, snmp_value):
         self.snmp_value = snmp_value

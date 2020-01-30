@@ -1,13 +1,13 @@
-# -*- coding: utf-8 -*-
+import socket
 
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 from pysnmp.proto.rfc1902 import ObjectName
 from pysnmp.smi.error import NoSuchObjectError
-import socket
+
 from infsnmp import types, exceptions
 
 
-class PySnmpClient(object):
+class PySnmpClient:
     AGENT_ID = 'felix_agent'
     DEFAULT_BULK_SIZE = 205
     DEFAULT_TIMEOUT = 2
@@ -16,10 +16,12 @@ class PySnmpClient(object):
 
     def get(self, host, community, oids, port=DEFAULT_PORT, timeout=DEFAULT_TIMEOUT, retries=DEFAULT_RETRIES):
         try:
-            err_indication, err_status, err_index, var_binds = cmdgen.CommandGenerator().getCmd(
-                    cmdgen.CommunityData('my-agent', community),
-                    cmdgen.UdpTransportTarget((host, port), timeout=timeout, retries=retries),
-                    *oids)
+            err_indication, err_status, err_index, var_binds = cmdgen.CommandGenerator().getCmd(cmdgen.CommunityData('my-agent', community),
+                                                                                                cmdgen.UdpTransportTarget(
+                                                                                                    (host, port),
+                                                                                                    timeout=timeout,
+                                                                                                    retries=retries),
+                                                                                                *oids)
             if err_indication:
                     raise exceptions.SNMPLevelError(msg="SNMP error %s - %s" % (host, err_indication))
             if err_status:
@@ -32,7 +34,7 @@ class PySnmpClient(object):
             return result
         except socket.error as exc:
             raise exceptions.SNMPSocketError(exc)
-        except NoSuchObjectError as exc:
+        except NoSuchObjectError:
             raise exceptions.InvalidOIDError()
 
     def walk(self, host, community, str_oid, port=DEFAULT_PORT, timeout=DEFAULT_TIMEOUT, retries=DEFAULT_RETRIES):
@@ -89,7 +91,7 @@ class PySnmpClient(object):
         return cmd_oid
 
     def __is_suboid(self, suboid, initial_oid):
-        return suboid[0:len(initial_oid)+1] == (initial_oid + '.')
+        return suboid[0:len(initial_oid) + 1] == (initial_oid + '.')
 
     def __extract_oid_and_value_from_varbind(self, snmp_value):
         oid = str(snmp_value[0])

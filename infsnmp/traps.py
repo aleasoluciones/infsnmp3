@@ -1,11 +1,12 @@
-# -*- coding: utf-8 -*-
-
 from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
 from pysnmp.carrier.asynsock.dgram import udp
 from pyasn1.codec.ber import decoder
 from pysnmp.proto import api
-from infsnmp import types
+
 from infcommon import clock, logger, AttributesComparison
+
+from infsnmp import types
+
 
 class PySnmpTrap(AttributesComparison):
 
@@ -17,7 +18,7 @@ class PySnmpTrap(AttributesComparison):
         self.values = values
 
 
-class PySnmpTrapDispatcher(object):
+class PySnmpTrapDispatcher:
     SNMP_TRAP_OID = '1.3.6.1.6.3.1.1.4.1.0'
 
     def __init__(self, trap_handler, address, port, clock=clock.Clock()):
@@ -33,14 +34,14 @@ class PySnmpTrapDispatcher(object):
         transport_dispatcher = AsynsockDispatcher()
         transport_dispatcher.registerRecvCbFun(self._callback)
         transport_dispatcher.registerTransport(udp.domainName,
-            udp.UdpSocketTransport().openServerMode((self.address, self.port)))
+                                               udp.UdpSocketTransport().openServerMode((self.address, self.port)))
         transport_dispatcher.jobStarted(1)
 
         try:
             transport_dispatcher.runDispatcher()
-        except:
+        except Exception as exc:
             transport_dispatcher.closeDispatcher()
-            raise
+            raise exc
 
     def _callback(self, transport_dispatcher, transport_domain, transport_address, whole_msg):
         try:
@@ -62,7 +63,6 @@ class PySnmpTrapDispatcher(object):
         except Exception as exc:
             logger.critical('Error snmptrap: {}  {}'.format(exc, exc.__class__.__name__))
 
-
     def _extract_and_process_trap(self, proto_module, request_pdu, transport_address):
             trap_oid = None
             values = {}
@@ -73,15 +73,13 @@ class PySnmpTrapDispatcher(object):
                     else:
                         values[str(oid)] = self._extract_value(val)
                 self.trap_handler.trap(
-                    PySnmpTrap(
-                            timestamp=self.clock.utctimestampnow(),
-                            source_address=transport_address[0],
-                            trap_oid=trap_oid,
-                            values=values)
+                    PySnmpTrap(timestamp=self.clock.utctimestampnow(),
+                               source_address=transport_address[0],
+                               trap_oid=trap_oid,
+                               values=values)
                 )
             except TypeError:
                 logger.error('Error processing RequestPDU transport_address:{} request_pdu:{}'.format(transport_address, request_pdu), exc_info=True)
-
 
     def _extract_value(self, val):
         return types.PySnmpValue(val.getComponent().getComponent().getComponent())

@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
-
 import unittest
-
-from hamcrest import *
+from hamcrest import assert_that, equal_to, has_length, has_item, is_
 
 from pysnmp.proto import rfc1902
 
