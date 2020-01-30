@@ -34,16 +34,25 @@ class PySnmpValuesTest(unittest.TestCase):
 
     def test_ipaddress_string(self):
         snmp_value = rfc1902.IpAddress('127.0.0.1')
-        assert_that(types.PySnmpValue(
-            snmp_value).value(), is_('127.0.0.1'))
+        assert_that(types.PySnmpValue(snmp_value).value(), is_('127.0.0.1'))
         assert_that(types.PySnmpValue(snmp_value).type_text(), is_('IpAddress'))
 
     def test_timestamp(self):
-        # '07dd011c0c292c002b0100' -> '2013-01-28 12:41:44' -> timstamp 1359373304.0
+        # See https://docs.python.org/3/library/struct.html for more details
+        # Huawei OLTs encode datetime as OctetString
+        # With binascii.unhexlify we separate each byte, and the we map with struct.unpack
+        # Example for 07e4011b04173a002b0000
+        #                 -------------------------------
+        # Hex:            07E4 01 1B 04 17 3A 00 2B 00 00
+        # Size:              h  b  b  b  b  b  b  c  b  b
+        # Dec:            2020 01 27 04 23 58 00  + 00 00
+        #                 -------------------------------
+        # Dec to datetime:    Jan 27 2020 23:58:00 +00:00
+        # Datetime to timestamp (in seconds):  1580169480
         os.environ['TZ'] = 'UTC'
-        snmp_value = rfc1902.OctetString(binascii.unhexlify(b'07dd011c0c292c002b0100'))
+        snmp_value = rfc1902.OctetString(binascii.unhexlify(b'07e4011b04173a002b0000'))
 
-        assert_that(types.PySnmpValue(snmp_value).to_timestamp(), is_(1359376904.0))
+        assert_that(types.PySnmpValue(snmp_value).to_timestamp(), is_(1580099038.0))
         assert_that(types.PySnmpValue(snmp_value).type_text(), is_('OctetString'))
 
     def test_gauge32(self):
