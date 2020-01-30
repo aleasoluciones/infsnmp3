@@ -1,11 +1,5 @@
-FROM ubuntu:trusty
+FROM python:3.7-slim
 MAINTAINER bifer@alea-soluciones.com
-
-ENV DEBIAN_FRONTEND noninteractive
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        apt-utils python-pip gcc libc6-dev\
-    && rm -rf /var/lib/apt/lists/*
 
 RUN pip install snmpsim==0.1.5
 
