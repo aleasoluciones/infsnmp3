@@ -1,6 +1,6 @@
 # infsnmp documentation
 
-[![Build status](https://secure.travis-ci.org/aleasoluciones/infsnmp.svg?branch=master)](https://secure.travis-ci.org/aleasoluciones/infsnmp)
+[![Build status](https://secure.travis-ci.org/aleasoluciones/infsnmp3.svg?branch=master)](https://secure.travis-ci.org/aleasoluciones/infsnmp3)
 
 
 Wrapper for [PySNMP](http://snmplabs.com/pysnmp/index.html) library.
