@@ -39,7 +39,7 @@ class PySnmpValuesTest(unittest.TestCase):
 
     def test_timestamp(self):
         # See https://docs.python.org/3/library/struct.html for more details
-        # Huawei OLTs encode datetime as OctetString
+        # Useful when datetime is encoded as OctetString
         # With binascii.unhexlify we separate each byte, and the we map with struct.unpack
         # Example for 07e4011b04173a002b0000
         #                 -------------------------------

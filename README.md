@@ -22,18 +22,17 @@ dev/setup_venv.sh
 ## How to run the tests
 
 ```sh
-./integration_tests.sh
+./all_tests.sh
 ```
 
-This will run a container executing the [SNMP Simulator Tool](http://snmplabs.com/snmpsim/) (snmpsim) and the tests against it. It has been loaded with custom data to simulate a Huawei OLTs. The container will be stopped and removed after running the tests.
+The integration tests need to be thrown against something "real", so a container executing the [SNMP Simulator Tool](http://snmplabs.com/snmpsim/) (snmpsim) will be built and run to simulate it. It has been loaded with custom data. The container will be stopped and removed after running the tests.
 
 ## Example: request an OID
 
-In the following examples we'll execute a *snmpwalk* using both the command line and the library. We can manually build and run the previous container to make OID petitions.
+In the following examples we'll execute a *snmpwalk* using both the command line and the library. But first we have to manually build and run the previous container simulating a device with snmp so we can ask for OIDs.
 
 ```sh
-docker build -t snmpsimd .
-docker run -d --name snmpsimd -v /etc/localtime:/etc/localtime:ro -v $(pwd)/integration_tests/snmpsim/simulated_data/:/simulated_data -p 1161:1161/udp snmpsimd
+docker-compose -f dev/infsnmp3_devdocker/docker-compose.yml up -d
 ```
 
 ### Using the command line
