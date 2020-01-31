@@ -14,6 +14,9 @@ before_install:
 install:
 - dev/setup_venv.sh
 
+before_script:
+- dev/start_infsnmp3_dependencies.sh
+
 script:
 - dev/integration_tests.sh
 

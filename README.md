@@ -19,21 +19,21 @@ mkvirtualenv infsnmp -p $(which python3.7)
 dev/setup_venv.sh
 ```
 
+- In order to have something that behaves like a real device, we build and run a container executing the [SNMP Simulator Tool](http://snmplabs.com/snmpsim/) (snmpsim). It has been loaded with custom data and we can ask it for OIDs.
+
+```sh
+dev/start_infsnmp3_dependencies.sh
+```
+
 ## How to run the tests
 
 ```sh
-./all_tests.sh
+dev/all_tests.sh
 ```
-
-The integration tests need to be thrown against something "real", so a container executing the [SNMP Simulator Tool](http://snmplabs.com/snmpsim/) (snmpsim) will be built and run to simulate it. It has been loaded with custom data. The container will be stopped and removed after running the tests.
 
 ## Example: request an OID
 
-In the following examples we'll execute a *snmpwalk* using both the command line and the library. But first we have to manually build and run the previous container simulating a device with snmp so we can ask for OIDs.
-
-```sh
-docker-compose -f dev/infsnmp3_devdocker/docker-compose.yml up -d
-```
+In the following examples we'll execute a *snmpwalk* using both the command line and the library.
 
 ### Using the command line
 
