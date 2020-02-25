@@ -18,7 +18,7 @@ before_script:
 - dev/start_infsnmp3_dependencies.sh
 
 script:
-- dev/integration_tests.sh
+- dev/all_tests.sh
 
 notifications:
   email:
