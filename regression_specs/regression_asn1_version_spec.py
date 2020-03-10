@@ -1,5 +1,5 @@
 from mamba import describe, context, it
-from expects import expect, be_false
+from expects import expect, be_true
 
 from specs import helpers
 
@@ -11,4 +11,4 @@ with describe('Ensure ans1 version Spec'):
                 an_str_oid = '1.3.6.1.6.3.1.1.4.1.0'
                 an_oid = helpers.build_oid_object_from(an_str_oid)
 
-                expect(hasattr(an_oid, 'prettyPrint')).to_not(be_false)
+                expect(hasattr(an_oid, 'prettyPrint')).to(be_true)

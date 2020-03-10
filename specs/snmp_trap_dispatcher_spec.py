@@ -31,4 +31,3 @@ with describe('PySnmpTrapDispatcher Spec'):
                 is_snmp_trap_oid = self.pysnmp_trap_dispatcher.is_snmp_trap_oid(an_oid)
 
                 expect(is_snmp_trap_oid).to(equal(False))
-

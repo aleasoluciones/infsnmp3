@@ -12,7 +12,7 @@ def build_request_pdu(str_oid):
     return request_pdu
 
 def first_oid_from_request_pdu(request_pdu):
-    for oid, val in PROTO_MODULE.apiPDU.getVarBindList(request_pdu):
+    for oid, val in PROTO_MODULE.apiPDU.getVarBinds(request_pdu):
         return oid
 
 def build_oid_object_from(str_oid):
