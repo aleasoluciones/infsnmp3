@@ -1,6 +1,4 @@
 import socket
-# HOTFIX due to memory leak problems with pysnmp, we have to manually garbace collect after snmp commands
-import gc
 
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 from pysnmp.proto.rfc1902 import ObjectName
@@ -75,8 +73,6 @@ class PySnmpClient:
                 non_repeaters, max_repetitions,
                 ObjectName(cmd_oid))
 
-            gc.collect()
-
             if err_indication:
                 raise exceptions.SNMPLevelError(msg="SNMP error %s - %s" % (host, err_indication))
             if err_status:
@@ -110,8 +106,6 @@ class PySnmpClient:
             err_indication, err_status, err_index, var_binds = cmdgen.CommandGenerator().setCmd(
                 cmdgen.CommunityData('my-agent', community),
                 cmdgen.UdpTransportTarget((host, port), timeout=timeout, retries=retries), *snmp_values)
-
-            gc.collect()
 
             if err_indication:
                 raise exceptions.SNMPLevelError(msg="SNMP error %s - %s" % (host, err_indication))
