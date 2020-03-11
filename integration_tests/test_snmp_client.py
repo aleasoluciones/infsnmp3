@@ -32,7 +32,7 @@ class SnmpClientTest(unittest.TestCase):
         assert_that(
             result, equal_to([(oid1, snmp_integer(999)), (oid2, snmp_integer(31))]))
 
-    def Xtest_walk(self):
+    def test_walk(self):
         oid = '1.3.6.1.4.1.4998.1.1.10.1.4.2.1.29'
         oid1 = '1.3.6.1.4.1.4998.1.1.10.1.4.2.1.29.1.10'
         oid2 = '1.3.6.1.4.1.4998.1.1.10.1.4.2.1.29.1.11'
@@ -44,7 +44,7 @@ class SnmpClientTest(unittest.TestCase):
         assert_that(result, has_item((oid1, snmp_integer(999))))
         assert_that(result, has_item((oid2, snmp_integer(31))))
 
-    def Xtest_bulk_walk(self):
+    def test_bulk_walk(self):
         oid = '1.3.6.1.4.1.4998.1.1.10.1.4.2.1.29'
         oid1 = '1.3.6.1.4.1.4998.1.1.10.1.4.2.1.29.1.10'
         oid2 = '1.3.6.1.4.1.4998.1.1.10.1.4.2.1.29.1.11'
@@ -69,7 +69,7 @@ class SnmpClientTest(unittest.TestCase):
         value = result[0][1]
         assert_that(value.exists(), is_(False))
 
-    def Xtest_walk_unknown_oid(self):
+    def test_walk_unknown_oid(self):
         unknown_oid = '1.2'
 
         result = self.snmp_client.walk(
