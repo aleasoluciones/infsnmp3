@@ -152,7 +152,7 @@ GetBulk provides some savings in terms of bandwidth. But, even more importantly,
 
 ## infsnmp3 client API
 
-Below is described the public API that this library provides. To run the examples, the [snmpsim](https://github.com/etingof/snmpsim) server (run `dev/start/infsnmp3_dependencies.sh`) which can emulate a real device, has to be up. The snmpsim server is feeded with [these files](/integration_tests/snmpsim/simulated_data/). For the following examples, we use the ones accesible under the "public" community (the community is the name of each file). The simulation data files can be created or edited following [this guide](https://github.com/etingof/snmpsim/blob/master/docs/source/documentation/managing-simulation-data.rst).
+Below is described the public API that this library provides. To run the examples, the [snmpsim](https://github.com/etingof/snmpsim) server (run `dev/start/infsnmp3_dependencies.sh`) which can emulate a real device, has to be up. The snmpsim server is feeded with [these files](/integration_specs/snmpsim/simulated_data/). For the following examples, we use the ones accesible under the "public" community (the community is the name of each file). The simulation data files can be created or edited following [this guide](https://github.com/etingof/snmpsim/blob/master/docs/source/documentation/managing-simulation-data.rst).
 
 In order to use the [command-line SNMP utils](http://www.net-snmp.org/wiki/index.php/Main_Page):
 

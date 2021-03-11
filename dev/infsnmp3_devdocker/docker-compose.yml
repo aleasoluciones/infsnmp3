@@ -4,6 +4,6 @@ services:
     build: .
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ../../integration_tests/snmpsim/simulated_data/:/simulated_data
+      - ../../integration_specs/snmpsim/simulated_data/:/simulated_data
     ports:
      - 1161:1161/udp
