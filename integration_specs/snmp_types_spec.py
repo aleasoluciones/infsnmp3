@@ -66,26 +66,27 @@ with description('SNMP Values'):
                 expect(snmp_value.sanetized_value()).to(equal(b'HG8110'))
 
         with context('having a timestamp'):
-            with it('checks timestamp value'):
-                # See https://docs.python.org/3/library/struct.html for more details
-                # Useful when datetime is encoded as OctetString
-                # With binascii.unhexlify we separate each byte, and the we map with struct.unpack
-                # Example for 07e4011b04173a002b0000
-                #                 -------------------------------
-                # Hex:            07E4 01 1B 04 17 3A 00 2B 00 00
-                # Size:              h  b  b  b  b  b  b  c  b  b
-                # Dec:            2020 01 27 04 23 58 00  + 00 00
-                #                 -------------------------------
-                # Dec to datetime:    Jan 27 2020 23:58:00 +00:00
-                # Datetime to timestamp (in seconds):  1580169480
+            with context('having an hex string with time and date'):
+                with it('returns a timestamp value'):
+                    # See https://docs.python.org/3/library/struct.html for more details
+                    # Useful when datetime is encoded as OctetString
+                    # With binascii.unhexlify we separate each byte, and the we map with struct.unpack
+                    # Example for 07e4011b04173a002b0000
+                    #                 -------------------------------
+                    # Hex:            07E4 01 1B 04 17 3A 00 2B 00 00
+                    # Size:              h  b  b  b  b  b  b  c  b  b
+                    # Dec:            2020 01 27 04 23 58 00  + 00 00
+                    #                 -------------------------------
+                    # Dec to datetime:    Jan 27 2020 23:58:00 +00:00
+                    # Datetime to timestamp (in seconds):  1580169480
 
-                os.environ['TZ'] = 'UTC'
-                data = binascii.unhexlify(b'07e4011b04173a002b0000')
-                snmp_data = rfc1902.OctetString(data)
+                    os.environ['TZ'] = 'UTC'
+                    data = binascii.unhexlify(b'07e4011b04173a002b0000')
+                    snmp_data = rfc1902.OctetString(data)
 
-                snmp_value = PySnmpValue(snmp_data)
+                    snmp_value = PySnmpValue(snmp_data)
 
-                expect(snmp_value.to_timestamp()).to(equal(1580099038.0))
+                    expect(snmp_value.to_timestamp()).to(equal(1580099038.0))
 
     with context('when type is IpAddress'):
         with it('checks value and type'):
