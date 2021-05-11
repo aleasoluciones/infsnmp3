@@ -66,7 +66,7 @@ with description('SNMP Values'):
                 expect(snmp_value.sanetized_value()).to(equal(b'HG8110'))
 
         with context('having a timestamp'):
-            with context('having an hex string with time and date'):
+            with context('having a hex string with time and date and time zone'):
                 with it('returns a timestamp value'):
                     # See https://docs.python.org/3/library/struct.html for more details
                     # Useful when datetime is encoded as OctetString
@@ -87,6 +87,19 @@ with description('SNMP Values'):
                     snmp_value = PySnmpValue(snmp_data)
 
                     expect(snmp_value.to_timestamp()).to(equal(1580099038.0))
+
+            with context('having a hex string with time and date'):
+                with it('returns a timestamp value'):
+                    # Note that if only local time is known, then timezone information (fields 8-10) is not present."
+                    # See https://cric.grenoble.cnrs.fr/Administrateurs/Outils/MIBS/?oid=1.3.6.1.2.1.16.19.4
+                    data = binascii.unhexlify(b'07E505070B170000')
+                    snmp_data = rfc1902.OctetString(data)
+
+                    snmp_value = PySnmpValue(snmp_data)
+
+                    # GMT: Friday, 7 May 2021 11:23:00
+                    expect(snmp_value.to_timestamp()).to(equal(1620386580.0))
+
 
     with context('when type is IpAddress'):
         with it('checks value and type'):

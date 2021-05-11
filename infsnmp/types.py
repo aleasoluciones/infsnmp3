@@ -47,8 +47,12 @@ class PySnmpValue:
 
     def to_timestamp(self):
         byte_data = self.value()
-        interpreted_datetime = struct.unpack('>hbbbbbbcbb', byte_data)
-        interpreted_datetime_naive = interpreted_datetime[:7]
+        if len(byte_data) == 11:
+            interpreted_datetime = struct.unpack('>hbbbbbbcbb', byte_data)
+            interpreted_datetime_naive = interpreted_datetime[:7]
+        if len(byte_data) == 8:
+            interpreted_datetime = struct.unpack('>hbbbbbb', byte_data)
+            interpreted_datetime_naive = interpreted_datetime
         return clock.Clock.timestamp(datetime.datetime(*interpreted_datetime_naive))
 
     def sanetized_value(self):
