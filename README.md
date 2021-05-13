@@ -58,8 +58,10 @@ dev/start_infsnmp3_dependencies.sh
 ### How to run the tests
 
 ```sh
-dev/all_tests.sh
+all_tests
 ```
+
+Note that project uses Alea's [pydevlib](https://github.com/aleasoluciones/pydevlib), so take a look at its README or run the command `pydevlib` from the virtual environment to see a summary of the available commands.
 
 ## SNMP concepts
 
