@@ -72,7 +72,6 @@ class PySnmpValue:
 
 
 class PySnmpTypes:
-
     def integer(self, value):
         return rfc1902.Integer(value)
 
@@ -96,9 +95,15 @@ class PySnmpTypes:
 
 
 class FakeSnmpValue:
-
     def __init__(self, snmp_value):
         self.snmp_value = snmp_value
+
+    def exists(self):
+        if isinstance(self.snmp_value, rfc1905.NoSuchInstance):
+            return False
+        if isinstance(self.snmp_value, rfc1905.NoSuchObject):
+            return False
+        return True
 
     def has_value(self, value):
         return value == self.value()
