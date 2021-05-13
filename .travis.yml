@@ -1,26 +1,28 @@
-sudo: required
-
 services:
-- docker
+  - docker
+
+os: linux
+
+dist: focal
 
 language: python
 
 python:
-- '3.7'
-
-before_install:
-- sudo apt-get -y update || true
+  - '3.7'
 
 install:
-- dev/setup_venv.sh
+  - dev/setup_venv.sh
 
 before_script:
-- echo $DOCKERHUB_TOKEN | docker login -u $DOCKERHUB_USER --password-stdin
-- dev/start_infsnmp3_dependencies.sh
+  - echo $DOCKERHUB_TOKEN | docker login -u $DOCKERHUB_USER --password-stdin
+  - dev/start_infsnmp3_dependencies.sh
 
 script:
-- dev/all_tests.sh
-- docker logout
+  - all_tests
+
+after_script:
+  - dev/stop_infsnmp3_dependencies.sh
+  - docker logout
 
 notifications:
   email:

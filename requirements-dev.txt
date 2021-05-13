@@ -1,4 +1,1 @@
-doublex==1.9.3
-doublex-expects==0.7.1
-expects==0.9.0
-mamba==0.11.2
+-e git+https://github.com/aleasoluciones/pydevlib.git#egg=pydevlib
