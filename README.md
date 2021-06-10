@@ -2,7 +2,7 @@
 
 Wrapper for [PySNMP](http://snmplabs.com/pysnmp/index.html) library.
 
-[![Build status](https://secure.travis-ci.com/aleasoluciones/infsnmp3.svg?branch=master)](https://secure.travis-ci.org/aleasoluciones/infsnmp3)
+[![Build status](https://api.travis-ci.com/aleasoluciones/infsnmp3.svg?branch=master)](https://secure.travis-ci.org/aleasoluciones/infsnmp3)
 
 <!-- TOC -->
 
