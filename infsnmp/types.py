@@ -112,7 +112,7 @@ class FakeSnmpValue:
         return self.snmp_value
 
     def to_hex_string(self):
-        return self.snmp_value
+        return self.snmp_value.hex()
 
     def to_timestamp(self):
         return self.snmp_value
