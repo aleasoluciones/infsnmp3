@@ -12,6 +12,11 @@ python:
 
 install:
   - dev/setup_venv.sh
+  - python -m pip install --no-cache-dir --upgrade pip wheel
+  - python -m pip install --no-cache-dir -r requirements-versioned.txt
+  - python -m pip install --no-cache-dir -r requirements-git.txt
+  - python -m pip install --no-cache-dir -r requirements-dev.txt
+  - python -m pip install -e .
 
 before_script:
   - echo $DOCKERHUB_TOKEN | docker login -u $DOCKERHUB_USER --password-stdin

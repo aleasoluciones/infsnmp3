@@ -1,0 +1,3 @@
+pyasn1==0.1.9
+pysnmp==4.2.4
+pysnmp-mibs==0.1.4

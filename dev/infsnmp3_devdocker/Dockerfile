@@ -1,7 +1,11 @@
 FROM python:3.7-slim
 LABEL maintainer="bifer@alea-soluciones.com"
 
-RUN pip install snmpsim==0.1.5
+ENV VIRTUAL_ENV=/opt/venv
+RUN python -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+RUN python -m pip install --upgrade pip && python -m pip install snmpsim==0.1.5
 
 EXPOSE 1161/udp
 
