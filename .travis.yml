@@ -12,7 +12,7 @@ python:
 
 install:
   - dev/setup_venv.sh
-  - python -m pip install --no-cache-dir --upgrade pip wheel
+  - python -m pip install --no-cache-dir --upgrade pip wheel setuptools
   - python -m pip install --no-cache-dir -r requirements-versioned.txt
   - python -m pip install --no-cache-dir -r requirements-git.txt
   - python -m pip install --no-cache-dir -r requirements-dev.txt
