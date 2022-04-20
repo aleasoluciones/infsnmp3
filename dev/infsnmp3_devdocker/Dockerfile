@@ -1,5 +1,4 @@
-FROM python:3.7-slim
-LABEL maintainer="bifer@alea-soluciones.com"
+FROM python:3.9-slim
 
 ENV VIRTUAL_ENV=/opt/venv
 RUN python -m venv $VIRTUAL_ENV

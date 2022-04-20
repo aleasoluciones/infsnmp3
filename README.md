@@ -1,8 +1,9 @@
 # infsnmp3
 
-Wrapper for [PySNMP](http://snmplabs.com/pysnmp/index.html) library.
-
 [![Build status](https://api.travis-ci.com/aleasoluciones/infsnmp3.svg?branch=master)](https://travis-ci.com/aleasoluciones/infsnmp3)
+![Python versions supported](https://img.shields.io/badge/supports%20python-3.7%20|%203.8%20|%203.9-blue.svg)
+
+Wrapper for [PySNMP](http://snmplabs.com/pysnmp/index.html) library.
 
 <!-- TOC -->
 
@@ -37,10 +38,10 @@ Wrapper for [PySNMP](http://snmplabs.com/pysnmp/index.html) library.
 
 ### How to setup the development environment
 
-- Create a virtual environment with [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/) using Python 3.7+:
+- Create a virtual environment with [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/) using Python 3:
 
 ```sh
-mkvirtualenv infsnmp3 -p $(which python3.7)
+mkvirtualenv infsnmp3 -p $(which python3)
 ```
 
 - Install the dependencies:
