@@ -3,7 +3,7 @@ from expects import expect, equal
 from doublex import Spy
 
 from infsnmp.traps import PySnmpTrapDispatcher
-from specs import helpers
+from infsnmp.specs import helpers
 
 with describe('PySnmpTrapDispatcher Spec'):
     with context('FEATURE: is snmp trap OID'):

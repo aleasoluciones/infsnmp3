@@ -1,7 +1,7 @@
 from mamba import describe, context, it
 from expects import expect, be_false
 
-from specs import helpers
+from infsnmp.specs import helpers
 
 
 with describe('Ensure ans1 version Spec'):
