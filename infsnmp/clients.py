@@ -95,7 +95,7 @@ class PySnmpClient:
             raise exceptions.SNMPSocketError(exc)
 
     def __convert_to_pysnmp_oid_format(self, str_oid):
-        cmd_oid = map(int, str_oid.split('.'))
+        cmd_oid = list(map(int, str_oid.split('.')))
         return cmd_oid
 
     def __is_suboid(self, suboid, initial_oid):

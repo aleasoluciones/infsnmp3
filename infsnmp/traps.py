@@ -67,11 +67,11 @@ class PySnmpTrapDispatcher:
             trap_oid = None
             values = {}
             try:
-                for oid, val in proto_module.apiPDU.getVarBindList(request_pdu):
-                    if self.is_snmp_trap_oid(oid):
-                        trap_oid = self._extract_value(val).value()
+                for varbind in proto_module.apiPDU.getVarBindList(request_pdu):
+                    if self.is_snmp_trap_oid(varbind[0]):
+                        trap_oid = self._extract_value(varbind[1]).value()
                     else:
-                        values[str(oid)] = self._extract_value(val)
+                        values[str(varbind[0])] = self._extract_value(varbind[1])
                 self.trap_handler.trap(
                     PySnmpTrap(timestamp=self.clock.utctimestampnow(),
                                source_address=transport_address[0],
