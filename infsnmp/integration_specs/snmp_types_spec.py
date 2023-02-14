@@ -6,7 +6,7 @@ import binascii
 
 import pysnmp
 from pysnmp.proto import rfc1902
-from pyasn1.type import univ
+from pysnmp.smi import builder, view, rfc1902 as rfc1902_smi
 
 from infsnmp.types import PySnmpValue, PySnmpTypes
 
@@ -121,20 +121,23 @@ with description('SNMP Values'):
 
     with context('when type is ObjectIdentifier'):
         with it('checks value and type'):
-            snmp_data = univ.ObjectIdentifier('1.1')
+            mib_builder = builder.MibBuilder()
+            mib_view = view.MibViewController(mib_builder)
+            snmp_data = rfc1902_smi.ObjectIdentity('1.1')
+            snmp_data.resolveWithMib(mib_view)
 
             snmp_value = PySnmpValue(snmp_data)
 
             expect(snmp_value.value()).to(equal('1.1'))
-            expect(snmp_value.type_text()).to(equal('ObjectIdentifier'))
+            expect(snmp_value.type_text()).to(equal('ObjectIdentity'))
 
     with context('when type is not recognized'):
-        with it('value is None'):
+        with it('returns a byte string'):
             snmp_data = rfc1902.TimeTicks(42)
 
             snmp_value = PySnmpValue(snmp_data)
 
-            expect(snmp_value.value()).to(equal(None))
+            expect(snmp_value.value()).to(equal(b'42'))
 
 
 with description('SNMP Types'):
