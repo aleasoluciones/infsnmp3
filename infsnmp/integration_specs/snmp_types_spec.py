@@ -6,9 +6,9 @@ import binascii
 
 import pysnmp
 from pysnmp.proto import rfc1902
-from pysnmp.smi import builder, view, rfc1902 as rfc1902_smi
 
 from infsnmp.types import PySnmpValue, PySnmpTypes
+from infsnmp.specs.helpers import build_snmp_data_object_identifier
 
 
 with description('SNMP Values'):
@@ -121,10 +121,7 @@ with description('SNMP Values'):
 
     with context('when type is ObjectIdentifier'):
         with it('checks value and type'):
-            mib_builder = builder.MibBuilder()
-            mib_view = view.MibViewController(mib_builder)
-            snmp_data = rfc1902_smi.ObjectIdentity('1.1')
-            snmp_data.resolveWithMib(mib_view)
+            snmp_data = build_snmp_data_object_identifier('1.1')
 
             snmp_value = PySnmpValue(snmp_data)
 
