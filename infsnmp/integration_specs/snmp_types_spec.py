@@ -8,7 +8,7 @@ import pysnmp
 from pysnmp.proto import rfc1902
 
 from infsnmp.types import PySnmpValue, PySnmpTypes
-from infsnmp.specs.helpers import build_snmp_data_object_identifier
+from infsnmp.specs.helpers import build_snmp_data_object_identity
 
 
 with description('SNMP Values'):
@@ -119,9 +119,9 @@ with description('SNMP Values'):
             expect(snmp_value.value()).to(equal(42))
             expect(snmp_value.type_text()).to(equal('Gauge32'))
 
-    with context('when type is ObjectIdentifier'):
+    with context('when type is ObjectIdentity'):
         with it('checks value and type'):
-            snmp_data = build_snmp_data_object_identifier('1.1')
+            snmp_data = build_snmp_data_object_identity('1.1')
 
             snmp_value = PySnmpValue(snmp_data)
 

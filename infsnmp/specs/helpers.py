@@ -21,7 +21,7 @@ def build_oid_object_from(str_oid):
     an_oid = first_oid_from_request_pdu(request_pdu)
     return an_oid
 
-def build_snmp_data_object_identifier(str_oid):
+def build_snmp_data_object_identity(str_oid):
     mib_builder = builder.MibBuilder()
     mib_view = view.MibViewController(mib_builder)
     snmp_data = rfc1902_smi.ObjectIdentity(str_oid)
