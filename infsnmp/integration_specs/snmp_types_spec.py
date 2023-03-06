@@ -128,13 +128,33 @@ with description('SNMP Values'):
             expect(snmp_value.value()).to(equal('1.1'))
             expect(snmp_value.type_text()).to(equal('ObjectIdentity'))
 
+    with context('when type is ObjectIdentifier'):
+        with it('checks value and type'):
+            snmp_data = rfc1902.ObjectIdentifier('1.1')
+
+            snmp_value = PySnmpValue(snmp_data)
+
+            expect(snmp_value.value()).to(equal('1.1'))
+            expect(snmp_value.type_text()).to(equal('ObjectIdentifier'))
+
+    with context('when type is DisplayString'):
+        with it('checks value and type'):
+            snmp_data = rfc1902.OctetString(b'Huawei Integrated Access Software')
+            # We have to do this hack because we are not able to find DisplayString in pySNMP
+            snmp_data.__class__.__name__ = 'DisplayString'
+
+            snmp_value = PySnmpValue(snmp_data)
+
+            expect(snmp_value.value()).to(equal('Huawei Integrated Access Software'))
+            expect(snmp_value.type_text()).to(equal('DisplayString'))
+
     with context('when type is not recognized'):
-        with it('returns a byte string'):
+        with it('returns None'):
             snmp_data = rfc1902.TimeTicks(42)
 
             snmp_value = PySnmpValue(snmp_data)
 
-            expect(snmp_value.value()).to(equal(b'42'))
+            expect(snmp_value.value()).to(equal(None))
 
 
 with description('SNMP Types'):

@@ -10,14 +10,16 @@ from infcommon import clock
 
 class PySnmpValue:
     _CONVERSIONS = {
-        rfc1902.OctetString: lambda self, value: value.asOctets(),
-        rfc1902.IpAddress: lambda self, value: self.snmp_value.prettyPrint(),
-        rfc1902.Integer: lambda self, value: int(self.snmp_value.prettyPrint()),
-        rfc1902.Integer32: lambda self, value: int(self.snmp_value.prettyPrint()),
-        rfc1902.Counter32: lambda self, value: int(self.snmp_value.prettyPrint()),
-        rfc1902.Counter64: lambda self, value: int(self.snmp_value.prettyPrint()),
-        rfc1902.Gauge32: lambda self, value: int(self.snmp_value.prettyPrint()),
-        rfc1902_smi.ObjectIdentity: lambda self, value: str(self.snmp_value),
+        'OctetString': lambda self, value: value.asOctets(),
+        'IpAddress': lambda self, value: self.snmp_value.prettyPrint(),
+        'Integer': lambda self, value: int(self.snmp_value.prettyPrint()),
+        'Integer32': lambda self, value: int(self.snmp_value.prettyPrint()),
+        'Counter32': lambda self, value: int(self.snmp_value.prettyPrint()),
+        'Counter64': lambda self, value: int(self.snmp_value.prettyPrint()),
+        'Gauge32': lambda self, value: int(self.snmp_value.prettyPrint()),
+        'DisplayString': lambda self, value: self.snmp_value.prettyPrint(),
+        'ObjectIdentifier': lambda self, value: self.snmp_value.prettyPrint(),
+        'ObjectIdentity': lambda self, value: str(self.snmp_value),
     }
 
     def __init__(self, snmp_value):
@@ -40,7 +42,7 @@ class PySnmpValue:
         return value == self.value()
 
     def value(self):
-        return self._CONVERSIONS.get(self.snmp_value.__class__, lambda self, value: self._convert_to_byte_string())(self, self.snmp_value)
+        return self._CONVERSIONS.get(self.snmp_value.__class__.__name__, lambda self, value: None)(self, self.snmp_value)
 
     def to_hex_string(self):
         return self.value().hex()
@@ -71,11 +73,6 @@ class PySnmpValue:
 
     def __repr__(self):
         return self.__str__()
-
-    def _convert_to_byte_string(self):
-        if not self.exists():
-            return None
-        return str.encode(str(self.snmp_value))
 
 
 class PySnmpTypes:
