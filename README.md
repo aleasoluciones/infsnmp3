@@ -1,6 +1,7 @@
 # infsnmp3
 
-[![Build status](https://api.travis-ci.com/aleasoluciones/infsnmp3.svg?branch=master)](https://travis-ci.com/aleasoluciones/infsnmp3)
+
+[![CI](https://github.com/aleasoluciones/infsnmp3/actions/workflows/ci.yml/badge.svg)](https://github.com/aleasoluciones/infsnmp3/actions/workflows/ci.yml)
 ![Python versions supported](https://img.shields.io/badge/supports%20python-3.9%20|%203.10%20|%203.11-blue.svg)
 
 Wrapper for [PySNMP](http://snmplabs.com/pysnmp/index.html) library.

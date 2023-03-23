@@ -10,29 +10,7 @@ jobs:
 
         strategy:
             matrix:
-                python-version: ['3.9', '3.10', '3.11']
-
-        env:
-            TEST_MODE: 1
-            DOCKER_COMPOSE_ETC: './dev/devdocker/'
-            CONF_FILE: /tmp/
-            MYSQL_HOSTNAME: 127.0.0.1
-            MYSQL_PORT: 3313
-            MYSQL_USER: test_user
-            MYSQL_PASSWORD: test_password
-            MYSQL_DB: mysql
-            MYSQL_DB_URI: mysql://test_user:test_password@127.0.0.1:3313/mysql
-
-        services:
-            db:
-                image: mysql:5
-                ports:
-                    - 3313:3306
-                env:
-                    MYSQL_ROOT_PASSWORD: test_password
-                    MYSQL_DATABASE: mysql
-                    MYSQL_USER: test_user
-                    MYSQL_PASSWORD: test_password
+                python-version: [ '3.9', '3.10', '3.11' ]
 
         steps:
             -   name: Checkout code
@@ -51,8 +29,11 @@ jobs:
                     python -m pip install -r requirements-git.txt
                     python -m pip install -e .
 
+            -   name: Docker-compose
+                run: docker-compose -f dev/infsnmp3_devdocker/docker-compose.yml up -d
+
             -   name: Unit tests
-                run: unit_tests
+                run: all_tests
 
             -   name: Integration tests
                 run: integration_tests
