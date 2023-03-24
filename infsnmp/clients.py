@@ -32,10 +32,6 @@ class PySnmpClient:
                     raise exceptions.SNMPLevelError(msg="SNMP PDU-level error %s status %s at %s" % (host, err_status, err_index))
             result = []
             for oid, value in var_binds:
-                print(type(oid))
-                print(oid)
-                print(type(value))
-                print(value)
                 oid = str(oid)
                 value = types.PySnmpValue(value)
                 result.append((oid, value))
