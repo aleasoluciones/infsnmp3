@@ -29,14 +29,11 @@ jobs:
                     python -m pip install -r requirements-git.txt
                     python -m pip install -e .
 
-            -   name: Docker-compose
-                run: docker-compose -f dev/infsnmp3_devdocker/docker-compose.yml up -d
-
             -   name: Unit tests
                 run: unit_tests
 
             -   name: Integration tests
-                run: integration_tests
+                run: dev/start_infsnmp3_dependencies.sh && integration_tests
 
             -   name: Factory tests
                 run: factory_tests
