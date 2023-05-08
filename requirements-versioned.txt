@@ -2,3 +2,4 @@ pysnmp-mibs==0.1.4
 pysnmp-pyasn1==1.1.2
 pysnmp-pysmi==1.1.10
 pysnmplib==5.0.21
+pyasn1==0.4.8
