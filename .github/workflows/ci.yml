@@ -33,7 +33,7 @@ jobs:
                 run: docker-compose -f dev/infsnmp3_devdocker/docker-compose.yml up -d
 
             -   name: Unit tests
-                run: all_tests
+                run: unit_tests
 
             -   name: Integration tests
                 run: integration_tests
