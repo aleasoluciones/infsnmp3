@@ -31,9 +31,14 @@ jobs:
 
             -   name: Unit tests
                 run: unit_tests
-
+                
+            -   name: Run infsnmp3 dependencies
+                uses: hoverkraft-tech/compose-action@v2.0.1
+                with:
+                    compose-file: "dev/infsnmp3_devdocker/docker-compose.yml"
+                    
             -   name: Integration tests
-                run: dev/start_infsnmp3_dependencies.sh && integration_tests
+                run: integration_tests
 
             -   name: Factory tests
                 run: factory_tests
