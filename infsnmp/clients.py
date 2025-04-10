@@ -7,14 +7,16 @@ from pysnmp.proto.rfc1902 import ObjectName
 from pysnmp.smi.error import NoSuchObjectError
 
 from infsnmp import types, exceptions
+from infsnmp.settings import SNMP_TIMEOUT_SECONDS
 
 
 class PySnmpClient:
     AGENT_ID = 'felix_agent'
     DEFAULT_BULK_SIZE = 205
-    DEFAULT_TIMEOUT = 2
+    DEFAULT_TIMEOUT =  SNMP_TIMEOUT_SECONDS
     DEFAULT_RETRIES = 2
     DEFAULT_PORT = 161
+
 
     def get(self, host, community, oids, port=DEFAULT_PORT, timeout=DEFAULT_TIMEOUT, retries=DEFAULT_RETRIES):
         try:
