@@ -12,7 +12,7 @@ from infsnmp import types, exceptions
 class PySnmpClient:
     AGENT_ID = 'felix_agent'
     DEFAULT_BULK_SIZE = 205
-    DEFAULT_TIMEOUT = 2
+    DEFAULT_TIMEOUT = 5
     DEFAULT_RETRIES = 2
     DEFAULT_PORT = 161
 
