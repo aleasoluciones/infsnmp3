@@ -57,12 +57,12 @@ class PyOIDConverter:
     def _initialize_mib_view_controller(self):
         if not self.mib_view_controller:
             mib_builder = builder.MibBuilder()
-            mib_builder.setMibSources(*self._make_mib_sources(mib_builder))
+            mib_builder.set_mib_sources(*self._make_mib_sources(mib_builder))
             self._load_modules(mib_builder)
             self.mib_view_controller = view.MibViewController(mib_builder)
 
     def _make_mib_sources(self, mib_builder):
-        return mib_builder.getMibSources() + (builder.DirMibSource(self.directory),)
+        return mib_builder.get_mib_sources() + (builder.DirMibSource(self.directory),)
 
     def _load_modules(self, mib_builder):
         for module in self.DEFAULT_MODULES + self.modules_to_load:

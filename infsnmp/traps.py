@@ -1,7 +1,8 @@
-from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
-from pysnmp.carrier.asynsock.dgram import udp
+import asyncio
+from pysnmp.carrier.asyncio.dgram import udp
 from pyasn1.codec.ber import decoder
 from pysnmp.proto import api
+from pysnmp.entity import engine, config
 
 from infcommon import clock, logger, AttributesComparison
 
@@ -31,27 +32,32 @@ class PySnmpTrapDispatcher:
         return oid.prettyPrint() == self.SNMP_TRAP_OID
 
     def run(self):
-        transport_dispatcher = AsynsockDispatcher()
-        transport_dispatcher.registerRecvCbFun(self._callback)
-        transport_dispatcher.registerTransport(udp.domainName,
-                                               udp.UdpSocketTransport().openServerMode((self.address, self.port)))
-        transport_dispatcher.jobStarted(1)
+        snmp_engine = engine.SnmpEngine()
+
+        config.addTransport(
+            snmp_engine,
+            udp.domainName,
+            udp.UdpAsyncioTransport().openServerMode((self.address, self.port))
+        )
+
+        snmp_engine.transportDispatcher.registerRecvCbFun(self._callback)
+        snmp_engine.transportDispatcher.jobStarted(1)
 
         try:
-            transport_dispatcher.runDispatcher()
+            asyncio.get_event_loop().run_forever()
         except Exception as exc:
-            transport_dispatcher.closeDispatcher()
+            snmp_engine.transportDispatcher.closeDispatcher()
             raise exc
 
     def _callback(self, transport_dispatcher, transport_domain, transport_address, whole_msg):
         try:
             while whole_msg:
                 msg_version = int(api.decodeMessageVersion(whole_msg))
-                if msg_version not in api.protoModules:
+                if msg_version not in api.PROTOCOL_MODULES:
                     logger.error('Unsupported SNMP version {} {}'.format(msg_version, transport_address[0]))
                     return
 
-                proto_module = api.protoModules[msg_version]
+                proto_module = api.PROTOCOL_MODULES[msg_version]
 
                 request_msg, whole_msg = decoder.decode(whole_msg, asn1Spec=proto_module.Message(),)
                 request_pdu = proto_module.apiMessage.getPDU(request_msg)
@@ -67,7 +73,7 @@ class PySnmpTrapDispatcher:
             trap_oid = None
             values = {}
             try:
-                for varbind in proto_module.apiPDU.getVarBindList(request_pdu):
+                for varbind in proto_module.apiPDU.get_varbind_list(request_pdu):
                     if self.is_snmp_trap_oid(varbind[0]):
                         trap_oid = self._extract_value(varbind[1]).value()
                     else:
