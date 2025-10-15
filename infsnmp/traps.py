@@ -1,8 +1,7 @@
 import asyncio
 from pysnmp.carrier.asyncio.dgram import udp
-from pyasn1.codec.ber import decoder
-from pysnmp.proto import api
 from pysnmp.entity import engine, config
+from pysnmp.entity.rfc3413 import ntfrcv
 
 from infcommon import clock, logger, AttributesComparison
 
@@ -27,67 +26,87 @@ class PySnmpTrapDispatcher:
         self.address = address
         self.port = port
         self.clock = clock
+        self.snmp_engine = None
 
     def is_snmp_trap_oid(self, oid):
-        return oid.prettyPrint() == self.SNMP_TRAP_OID
+        return str(oid) == self.SNMP_TRAP_OID
+
+    def _community_rewrite_observer(self, snmpEngine, execpoint, variables, cbCtx):
+        """Observer that rewrites any incoming community string to 'public'.
+        This allows accepting traps with any community string (similar to pysnmp 4.x behavior)."""
+        if 'communityName' in variables:
+            variables['communityName'] = variables['communityName'].clone(cbCtx)
 
     def run(self):
-        snmp_engine = engine.SnmpEngine()
+        self.snmp_engine = engine.SnmpEngine()
 
-        config.addTransport(
-            snmp_engine,
-            udp.domainName,
-            udp.UdpAsyncioTransport().openServerMode((self.address, self.port))
+        # Register observer to accept any community string by rewriting to 'public'
+        # This emulates the 'disableAuthorization' behavior
+        self.snmp_engine.observer.register_observer(
+            self._community_rewrite_observer,
+            'rfc2576.processIncomingMsg:writable',
+            cbCtx='public'
         )
 
-        # Register callback with unique ID to avoid collision
-        recv_id = f'trap_dispatcher_{self.address}_{self.port}'
-        snmp_engine.transport_dispatcher.register_recv_callback(self._callback, recv_id)
-        snmp_engine.transport_dispatcher.job_started(1)
+        # Configure UDP transport
+        config.add_transport(
+            self.snmp_engine,
+            udp.DOMAIN_NAME,
+            udp.UdpAsyncioTransport().open_server_mode((self.address, self.port))
+        )
+
+        # Only need to configure 'public' since all community strings are rewritten to it
+        config.add_v1_system(self.snmp_engine, 'my-area', 'public')
+
+        # Register notification receiver with callback
+        ntfrcv.NotificationReceiver(self.snmp_engine, self._callback)
+
+        logger.info(f'SNMP trap dispatcher listening on {self.address}:{self.port}')
 
         try:
             asyncio.get_event_loop().run_forever()
         except Exception as exc:
-            snmp_engine.transport_dispatcher.close_dispatcher()
+            self.snmp_engine.transport_dispatcher.close_dispatcher()
             raise exc
 
-    def _callback(self, transport_dispatcher, transport_domain, transport_address, whole_msg):
+    def _callback(self, snmpEngine, stateReference, contextEngineId, contextName, varBinds, cbCtx):
+        """Callback invoked when a trap/inform is received."""
         try:
-            while whole_msg:
-                msg_version = int(api.decodeMessageVersion(whole_msg))
-                if msg_version not in api.PROTOCOL_MODULES:
-                    logger.error('Unsupported SNMP version {} {}'.format(msg_version, transport_address[0]))
-                    return
+            # Get transport information (source address)
+            try:
+                transportDomain, transportAddress = snmpEngine.message_dispatcher.get_transport_info(stateReference)
+                source_address = transportAddress[0] if transportAddress else 'unknown'
+            except Exception as e:
+                logger.warning(f'Could not get transport info: {e}')
+                source_address = 'unknown'
 
-                proto_module = api.PROTOCOL_MODULES[msg_version]
+            # Ignore broadcast traps
+            if source_address == '0.0.0.0':
+                logger.info('Broadcast snmptrap ignored')
+                return
 
-                request_msg, whole_msg = decoder.decode(whole_msg, asn1Spec=proto_module.Message(),)
-                request_pdu = proto_module.apiMessage.getPDU(request_msg)
-                if transport_address[0] == '0.0.0.0':
-                    logger.info('Broadcast snmptrap ignored')
-                    return
-                if request_pdu.isSameTypeWith(proto_module.TrapPDU()):
-                    self._extract_and_process_trap(proto_module, request_pdu, transport_address)
-        except Exception as exc:
-            logger.critical('Error snmptrap: {}  {}'.format(exc, exc.__class__.__name__))
-
-    def _extract_and_process_trap(self, proto_module, request_pdu, transport_address):
+            # Extract trap OID and values
             trap_oid = None
             values = {}
-            try:
-                for varbind in proto_module.apiPDU.get_varbind_list(request_pdu):
-                    if self.is_snmp_trap_oid(varbind[0]):
-                        trap_oid = self._extract_value(varbind[1]).value()
-                    else:
-                        values[str(varbind[0])] = self._extract_value(varbind[1])
-                self.trap_handler.trap(
-                    PySnmpTrap(timestamp=self.clock.utctimestampnow(),
-                               source_address=transport_address[0],
-                               trap_oid=trap_oid,
-                               values=values)
-                )
-            except TypeError:
-                logger.error('Error processing RequestPDU transport_address:{} request_pdu:{}'.format(transport_address, request_pdu), exc_info=True)
 
-    def _extract_value(self, val):
-        return types.PySnmpValue(val.getComponent().getComponent().getComponent())
+            for oid, val in varBinds:
+                oid_str = str(oid)
+                if self.is_snmp_trap_oid(oid):
+                    # This is the trap OID
+                    trap_oid = str(val)
+                else:
+                    # This is a varbind
+                    values[oid_str] = types.PySnmpValue(val)
+
+            # Call the trap handler
+            self.trap_handler.trap(
+                PySnmpTrap(
+                    timestamp=self.clock.utctimestampnow(),
+                    source_address=source_address,
+                    trap_oid=trap_oid,
+                    values=values
+                )
+            )
+
+        except Exception as exc:
+            logger.critical('Error processing snmptrap: {} {}'.format(exc, exc.__class__.__name__), exc_info=True)
