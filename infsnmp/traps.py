@@ -40,13 +40,13 @@ class PySnmpTrapDispatcher:
             udp.UdpAsyncioTransport().openServerMode((self.address, self.port))
         )
 
-        snmp_engine.transportDispatcher.registerRecvCbFun(self._callback)
-        snmp_engine.transportDispatcher.jobStarted(1)
+        snmp_engine.transport_dispatcher.register_recv_callback(self._callback)
+        snmp_engine.transport_dispatcher.job_started(1)
 
         try:
             asyncio.get_event_loop().run_forever()
         except Exception as exc:
-            snmp_engine.transportDispatcher.closeDispatcher()
+            snmp_engine.transport_dispatcher.close_dispatcher()
             raise exc
 
     def _callback(self, transport_dispatcher, transport_domain, transport_address, whole_msg):
