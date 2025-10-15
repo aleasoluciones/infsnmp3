@@ -40,7 +40,9 @@ class PySnmpTrapDispatcher:
             udp.UdpAsyncioTransport().openServerMode((self.address, self.port))
         )
 
-        snmp_engine.transport_dispatcher.register_recv_callback(self._callback)
+        # Register callback with unique ID to avoid collision
+        recv_id = f'trap_dispatcher_{self.address}_{self.port}'
+        snmp_engine.transport_dispatcher.register_recv_callback(self._callback, recv_id)
         snmp_engine.transport_dispatcher.job_started(1)
 
         try:
