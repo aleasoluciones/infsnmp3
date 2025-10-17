@@ -38,7 +38,7 @@ jobs:
                 run: unit_tests
                 
             -   name: Run infsnmp3 dependencies
-                uses: hoverkraft-tech/compose-action@v2.0.1
+                uses: hoverkraft-tech/compose-action@v2.4.1
                 with:
                     compose-file: "dev/infsnmp3_devdocker/docker-compose.yml"
                     
