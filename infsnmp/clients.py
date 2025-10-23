@@ -52,7 +52,7 @@ class PySnmpClient:
             except NoSuchObjectError:
                 raise exceptions.InvalidOIDError()
 
-        return asyncio.run(_async_get())
+        return self._run_coroutine(_async_get())
 
     def walk(self, host, community, str_oid, port=DEFAULT_PORT, timeout=DEFAULT_TIMEOUT, retries=DEFAULT_RETRIES):
         async def _async_walk():
@@ -83,7 +83,7 @@ class PySnmpClient:
             except socket.error as exc:
                 raise exceptions.SNMPSocketError(exc)
 
-        return asyncio.run(_async_walk())
+        return self._run_coroutine(_async_walk())
 
     def bulk_walk(self, host, community, str_oid, port=DEFAULT_PORT, timeout=DEFAULT_TIMEOUT, retries=DEFAULT_RETRIES, non_repeaters=0, max_repetitions=50):
         async def _async_bulk_walk():
@@ -116,14 +116,7 @@ class PySnmpClient:
             except socket.error as exc:
                 raise exceptions.SNMPSocketError(exc)
 
-        try:
-            loop = asyncio.get_event_loop()
-        except RuntimeError:
-            return asyncio.run(_async_bulk_walk())
-        if loop.is_running():
-            nest_asyncio.apply()
-            return asyncio.run(_async_bulk_walk())
-        return loop.run_until_complete(_async_bulk_walk())
+        return self._run_coroutine(_async_bulk_walk())
 
     def __convert_to_pysnmp_oid_format(self, str_oid):
         cmd_oid = list(map(int, str_oid.split('.')))
@@ -161,7 +154,7 @@ class PySnmpClient:
             except socket.error as exc:
                 raise exceptions.SNMPSocketError(exc)
 
-        return asyncio.run(_async_set())
+        return self._run_coroutine(_async_set())
 
     def _to_pysnmp_value(self, value):
         """Convert primitive values to pysnmp objects if needed."""
@@ -179,3 +172,33 @@ class PySnmpClient:
         else:
             # Try to use it as is, let pysnmp handle it
             return value
+
+    def _run_coroutine(self, coro):
+        """
+        Executes a coroutine handling different event loop scenarios.
+
+        This method properly handles:
+        - No event loop exists: creates a new one with asyncio.run()
+        - Event loop exists but not running: uses run_until_complete()
+        - Event loop is running (e.g., Tornado, FastAPI): uses nest_asyncio as fallback
+
+        Args:
+            coro: A coroutine to execute
+
+        Returns:
+            The result of the coroutine execution
+        """
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            # No event loop exists, create a new one
+            return asyncio.run(coro)
+
+        if loop.is_running():
+            # Event loop is already running (e.g., Tornado, FastAPI)
+            # We need nest_asyncio to allow nested event loops
+            nest_asyncio.apply()
+            return asyncio.run(coro)
+        else:
+            # Event loop exists but is not running
+            return loop.run_until_complete(coro)
