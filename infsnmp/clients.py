@@ -1,4 +1,5 @@
 import socket
+import nest_asyncio
 import asyncio
 # HOTFIX due to memory leak problems with pysnmp, we have to manually garbace collect after snmp commands
 import gc
@@ -115,7 +116,14 @@ class PySnmpClient:
             except socket.error as exc:
                 raise exceptions.SNMPSocketError(exc)
 
-        return asyncio.run(_async_bulk_walk())
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            return asyncio.run(_async_bulk_walk())
+        if loop.is_running():
+            nest_asyncio.apply()
+            return asyncio.run(_async_bulk_walk())
+        return loop.run_until_complete(_async_bulk_walk())
 
     def __convert_to_pysnmp_oid_format(self, str_oid):
         cmd_oid = list(map(int, str_oid.split('.')))
