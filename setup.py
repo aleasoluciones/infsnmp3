@@ -9,6 +9,7 @@ setup(name='infsnmp',
       install_requires=['pysnmp==7.1.21',
                         'pysnmp-pyasn1==1.1.3',
                         'pysnmp-mibs==0.1.6',
-                        'infcommon'],
+                        'infcommon',
+                        'nest-asyncio==1.6.0'],
       dependency_links=['git+https://github.com/aleasoluciones/infcommon3.git#egg=infcommon'],
       scripts=[])
