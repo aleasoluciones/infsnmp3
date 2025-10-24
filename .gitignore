@@ -167,3 +167,4 @@ fabric.properties
 
 # Visual Code
 .vscode/
+lcov.info
