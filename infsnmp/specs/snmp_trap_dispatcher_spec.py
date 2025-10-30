@@ -48,48 +48,44 @@ with describe('PySnmpTrapDispatcher Spec') as self:
             )
 
         with context('when starting the trap dispatcher'):
-            with it('initializes SNMP engine and configures listener'):
-                with patch('infsnmp.traps.engine') as mock_engine, \
-                     patch('infsnmp.traps.config') as mock_config, \
+            with it('configures listener using existing SNMP engine'):
+                with patch('infsnmp.traps.config') as mock_config, \
                      patch('infsnmp.traps.ntfrcv') as mock_ntfrcv, \
                      patch('infsnmp.traps.udp') as mock_udp, \
                      patch('asyncio.get_event_loop') as mock_get_loop:
 
                     # Setup mocks
-                    mock_snmp_engine = MagicMock()
-                    mock_snmp_engine.observer.register_observer = MagicMock()
-                    mock_engine.SnmpEngine.return_value = mock_snmp_engine
-
                     mock_transport = MagicMock()
                     mock_udp.UdpAsyncioTransport.return_value.open_server_mode.return_value = mock_transport
 
                     mock_loop = MagicMock()
                     mock_get_loop.return_value = mock_loop
-                    
+
+                    # Mock the snmp_engine observer that was created in __init__
+                    self.pysnmp_trap_dispatcher.snmp_engine.observer = MagicMock()
+                    self.pysnmp_trap_dispatcher.snmp_engine.observer.register_observer = MagicMock()
+
                     # Execute
                     try:
                         self.pysnmp_trap_dispatcher.run()
                     except KeyboardInterrupt:
                         pass
 
-                    # Verify SnmpEngine was created
-                    mock_engine.SnmpEngine.assert_called_once()
-
                     # Verify observer was registered for community rewriting
-                    mock_snmp_engine.observer.register_observer.assert_called_once()
-                    call_args = mock_snmp_engine.observer.register_observer.call_args
+                    self.pysnmp_trap_dispatcher.snmp_engine.observer.register_observer.assert_called_once()
+                    call_args = self.pysnmp_trap_dispatcher.snmp_engine.observer.register_observer.call_args
                     expect(call_args[1]['cbCtx']).to(equal('public'))
 
                     # Verify UDP transport was configured
                     mock_config.add_transport.assert_called_once_with(
-                        mock_snmp_engine,
+                        self.pysnmp_trap_dispatcher.snmp_engine,
                         mock_udp.DOMAIN_NAME,
                         mock_transport
                     )
 
                     # Verify v1 system was configured with 'public' community
                     mock_config.add_v1_system.assert_called_once_with(
-                        mock_snmp_engine,
+                        self.pysnmp_trap_dispatcher.snmp_engine,
                         'my-area',
                         'public'
                     )

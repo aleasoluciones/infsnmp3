@@ -26,7 +26,7 @@ class PySnmpTrapDispatcher:
         self.address = address
         self.port = port
         self.clock = clock
-        self.snmp_engine = None
+        self.snmp_engine = engine.SnmpEngine()
 
     def is_snmp_trap_oid(self, oid):
         return str(oid) == self.SNMP_TRAP_OID
@@ -38,8 +38,6 @@ class PySnmpTrapDispatcher:
             variables['communityName'] = variables['communityName'].clone(cbCtx)
 
     def run(self):
-        self.snmp_engine = engine.SnmpEngine()
-
         try:
             # Register observer to accept any community string by rewriting to 'public'
             # This emulates the 'disableAuthorization' behavior
@@ -68,9 +66,6 @@ class PySnmpTrapDispatcher:
         except Exception as exc:
             logger.error(f'SNMP trap dispatcher error: {exc}')
             raise exc
-        finally:
-            if self.snmp_engine:
-                self.snmp_engine.transport_dispatcher.close_dispatcher()
 
     def _callback(self, snmpEngine, stateReference, contextEngineId, contextName, varBinds, cbCtx):
         """Callback invoked when a trap/inform is received."""

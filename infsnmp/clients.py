@@ -21,14 +21,16 @@ class PySnmpClient:
     DEFAULT_RETRIES = 2
     DEFAULT_PORT = 161
 
+    def __init__(self):
+        self.snmp_engine = SnmpEngine()
+
     def get(self, host, community, oids, port=DEFAULT_PORT, timeout=DEFAULT_TIMEOUT, retries=DEFAULT_RETRIES):
         async def _async_get():
-            snmpEngine = SnmpEngine()
             try:
                 object_types = [ObjectType(ObjectIdentity(oid)) for oid in oids]
 
                 err_indication, err_status, err_index, var_binds = await get_cmd(
-                    snmpEngine,
+                    self.snmp_engine,
                     CommunityData(community),
                     await UdpTransportTarget.create((host, port), timeout=timeout, retries=retries),
                     ContextData(),
@@ -51,19 +53,17 @@ class PySnmpClient:
             except NoSuchObjectError:
                 raise exceptions.InvalidOIDError()
             finally:
-                snmpEngine.close_dispatcher()
                 gc.collect()
 
         return self._run_coroutine(_async_get())
 
     def walk(self, host, community, str_oid, port=DEFAULT_PORT, timeout=DEFAULT_TIMEOUT, retries=DEFAULT_RETRIES):
         async def _async_walk():
-            snmpEngine = SnmpEngine()
             try:
                 result = []
 
                 async for (err_indication, err_status, err_index, var_binds) in walk_cmd(
-                    snmpEngine,
+                    self.snmp_engine,
                     CommunityData(community),
                     await UdpTransportTarget.create((host, port), timeout=timeout, retries=retries),
                     ContextData(),
@@ -85,19 +85,17 @@ class PySnmpClient:
             except socket.error as exc:
                 raise exceptions.SNMPSocketError(exc)
             finally:
-                snmpEngine.close_dispatcher()
                 gc.collect()
 
         return self._run_coroutine(_async_walk())
 
     def bulk_walk(self, host, community, str_oid, port=DEFAULT_PORT, timeout=DEFAULT_TIMEOUT, retries=DEFAULT_RETRIES, non_repeaters=0, max_repetitions=50):
         async def _async_bulk_walk():
-            snmpEngine = SnmpEngine()
             try:
                 result = []
 
                 async for (err_indication, err_status, err_index, var_binds) in bulk_walk_cmd(
-                    snmpEngine,
+                    self.snmp_engine,
                     CommunityData(community),
                     await UdpTransportTarget.create((host, port), timeout=timeout, retries=retries),
                     ContextData(),
@@ -121,7 +119,6 @@ class PySnmpClient:
             except socket.error as exc:
                 raise exceptions.SNMPSocketError(exc)
             finally:
-                snmpEngine.close_dispatcher()
                 gc.collect()
 
         return self._run_coroutine(_async_bulk_walk())
@@ -140,13 +137,12 @@ class PySnmpClient:
 
     def set(self, host, community, snmp_values, port=DEFAULT_PORT, timeout=DEFAULT_TIMEOUT, retries=DEFAULT_RETRIES):
         async def _async_set():
-            snmpEngine = SnmpEngine()
             try:
                 object_types = [ObjectType(ObjectIdentity(oid), self._to_pysnmp_value(value))
                                for oid, value in snmp_values]
 
                 err_indication, err_status, err_index, var_binds = await set_cmd(
-                    snmpEngine,
+                    self.snmp_engine,
                     CommunityData(community),
                     await UdpTransportTarget.create((host, port), timeout=timeout, retries=retries),
                     ContextData(),
@@ -161,7 +157,6 @@ class PySnmpClient:
             except socket.error as exc:
                 raise exceptions.SNMPSocketError(exc)
             finally:
-                snmpEngine.close_dispatcher()
                 gc.collect()
 
         return self._run_coroutine(_async_set())
