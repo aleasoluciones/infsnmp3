@@ -40,34 +40,37 @@ class PySnmpTrapDispatcher:
     def run(self):
         self.snmp_engine = engine.SnmpEngine()
 
-        # Register observer to accept any community string by rewriting to 'public'
-        # This emulates the 'disableAuthorization' behavior
-        self.snmp_engine.observer.register_observer(
-            self._community_rewrite_observer,
-            'rfc2576.processIncomingMsg:writable',
-            cbCtx='public'
-        )
-
-        # Configure UDP transport
-        config.add_transport(
-            self.snmp_engine,
-            udp.DOMAIN_NAME,
-            udp.UdpAsyncioTransport().open_server_mode((self.address, self.port))
-        )
-
-        # Only need to configure 'public' since all community strings are rewritten to it
-        config.add_v1_system(self.snmp_engine, 'my-area', 'public')
-
-        # Register notification receiver with callback
-        ntfrcv.NotificationReceiver(self.snmp_engine, self._callback)
-
-        logger.info(f'SNMP trap dispatcher listening on {self.address}:{self.port}')
-
         try:
+            # Register observer to accept any community string by rewriting to 'public'
+            # This emulates the 'disableAuthorization' behavior
+            self.snmp_engine.observer.register_observer(
+                self._community_rewrite_observer,
+                'rfc2576.processIncomingMsg:writable',
+                cbCtx='public'
+            )
+
+            # Configure UDP transport
+            config.add_transport(
+                self.snmp_engine,
+                udp.DOMAIN_NAME,
+                udp.UdpAsyncioTransport().open_server_mode((self.address, self.port))
+            )
+
+            # Only need to configure 'public' since all community strings are rewritten to it
+            config.add_v1_system(self.snmp_engine, 'my-area', 'public')
+
+            # Register notification receiver with callback
+            ntfrcv.NotificationReceiver(self.snmp_engine, self._callback)
+
+            logger.info(f'SNMP trap dispatcher listening on {self.address}:{self.port}')
+
             asyncio.get_event_loop().run_forever()
         except Exception as exc:
-            self.snmp_engine.transport_dispatcher.close_dispatcher()
+            logger.error(f'SNMP trap dispatcher error: {exc}')
             raise exc
+        finally:
+            if self.snmp_engine:
+                self.snmp_engine.transport_dispatcher.close_dispatcher()
 
     def _callback(self, snmpEngine, stateReference, contextEngineId, contextName, varBinds, cbCtx):
         """Callback invoked when a trap/inform is received."""
