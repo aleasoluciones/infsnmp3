@@ -23,6 +23,7 @@ class PySnmpClient:
 
     def __init__(self):
         self.snmp_engine = SnmpEngine()
+        self.context_data = ContextData()
 
     def get(self, host, community, oids, port=DEFAULT_PORT, timeout=DEFAULT_TIMEOUT, retries=DEFAULT_RETRIES):
         async def _async_get():
@@ -33,7 +34,7 @@ class PySnmpClient:
                     self.snmp_engine,
                     CommunityData(community),
                     await UdpTransportTarget.create((host, port), timeout=timeout, retries=retries),
-                    ContextData(),
+                    self.context_data,
                     *object_types
                 )
 
@@ -66,7 +67,7 @@ class PySnmpClient:
                     self.snmp_engine,
                     CommunityData(community),
                     await UdpTransportTarget.create((host, port), timeout=timeout, retries=retries),
-                    ContextData(),
+                    self.context_data,
                     ObjectType(ObjectIdentity(str_oid)),
                     lexicographicMode=False
                 ):
@@ -98,7 +99,7 @@ class PySnmpClient:
                     self.snmp_engine,
                     CommunityData(community),
                     await UdpTransportTarget.create((host, port), timeout=timeout, retries=retries),
-                    ContextData(),
+                    self.context_data,
                     non_repeaters,
                     max_repetitions,
                     ObjectType(ObjectIdentity(str_oid)),
@@ -123,29 +124,17 @@ class PySnmpClient:
 
         return self._run_coroutine(_async_bulk_walk())
 
-    def __convert_to_pysnmp_oid_format(self, str_oid):
-        cmd_oid = list(map(int, str_oid.split('.')))
-        return cmd_oid
-
-    def __is_suboid(self, suboid, initial_oid):
-        return suboid[0:len(initial_oid) + 1] == (initial_oid + '.')
-
-    def __extract_oid_and_value_from_varbind(self, snmp_value):
-        oid = str(snmp_value[0])
-        value = types.PySnmpValue(snmp_value[1])
-        return oid, value
-
     def set(self, host, community, snmp_values, port=DEFAULT_PORT, timeout=DEFAULT_TIMEOUT, retries=DEFAULT_RETRIES):
         async def _async_set():
             try:
                 object_types = [ObjectType(ObjectIdentity(oid), self._to_pysnmp_value(value))
                                for oid, value in snmp_values]
 
-                err_indication, err_status, err_index, var_binds = await set_cmd(
+                err_indication, err_status, err_index, _ = await set_cmd(
                     self.snmp_engine,
                     CommunityData(community),
                     await UdpTransportTarget.create((host, port), timeout=timeout, retries=retries),
-                    ContextData(),
+                    self.context_data,
                     *object_types
                 )
 
@@ -161,6 +150,9 @@ class PySnmpClient:
 
         return self._run_coroutine(_async_set())
 
+    def __is_suboid(self, suboid, initial_oid):
+        return suboid[0:len(initial_oid) + 1] == (initial_oid + '.')
+
     def _to_pysnmp_value(self, value):
         """Convert primitive values to pysnmp objects if needed."""
         # If it's already a pysnmp object, return as is
@@ -170,13 +162,12 @@ class PySnmpClient:
         # Convert primitive types to pysnmp objects
         if isinstance(value, bytes):
             return rfc1902.OctetString(value)
-        elif isinstance(value, int):
+        if isinstance(value, int):
             return rfc1902.Integer(value)
-        elif isinstance(value, str):
+        if isinstance(value, str):
             return rfc1902.OctetString(value)
-        else:
-            # Try to use it as is, let pysnmp handle it
-            return value
+        # Try to use it as is, let pysnmp handle it
+        return value
 
     def _run_coroutine(self, coro):
         """
@@ -204,6 +195,5 @@ class PySnmpClient:
             # We need nest_asyncio to allow nested event loops
             nest_asyncio.apply()
             return asyncio.run(coro)
-        else:
-            # Event loop exists but is not running
-            return loop.run_until_complete(coro)
+        # Event loop exists but is not running
+        return loop.run_until_complete(coro)
